@@ -120,9 +120,11 @@ func main() {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
-	fmt.Println("date time frequency")
+	fmt.Println("date time frequency cumulative")
+	cumulative := 0
 	for _, k := range keys {
-		fmt.Println(k, freq[k])
+		cumulative += freq[k]
+		fmt.Println(k, freq[k], cumulative)
 	}
 	os.Exit(ret)
 }

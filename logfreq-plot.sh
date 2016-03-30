@@ -11,6 +11,9 @@ usage() {
 log.txt is the file produced by logfreq
 
 OPTIONS
+    -c
+	Log the cumulative value
+
     -d <duration>
 	Limit xrange max to <duration>, e.g: -d '1 hour'
 
@@ -56,9 +59,13 @@ dryrun=
 UNTIL=
 SINCE=
 timefmt='%Y/%m/%d %H:%M'
-while getopts d:E:f:hnW:H:S:s:T:t:x: opt
+cumulative=
+while getopts cd:E:f:hnW:H:S:s:T:t:x: opt
 do
 	case "$opt" in
+		c)
+			cumulative=t
+			;;
 		d)
 			duration=$OPTARG
 			;;
@@ -156,6 +163,11 @@ if [ -n "$xmin" -o -n "$xmax" ]; then
 	xrange='set xrange ['$xmin':'$xmax']'
 fi
 
+using="using 1:\"frequency\" with impulses"
+if [ -n "$cumulative" ]; then
+	using="$using, '' using 1:\"cumulative\" with lines"
+fi
+
 gnuplot_cmd="set xdata time;
 set timefmt \"$timefmt\";
 set title '$title' textcolor rgb \"$fg\";
@@ -171,7 +183,7 @@ set xtics textcolor rgb \"$fg\";
 set ytics textcolor rgb \"$fg\";
 set grid linecolor rgb \"gray\";
 
-plot '$log' using 1:\"frequency\" with impulses;"
+plot '$log' $using;"
 
 if [ -n "$dryrun" ]; then
   echo "gnuplot -persist -e \"$gnuplot_cmd\""
