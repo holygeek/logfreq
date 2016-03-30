@@ -1,4 +1,5 @@
 #!/bin/sh
+#vim:ts=8:
 set -e
 me=$(basename $0)
 args="$(basename $0) $@"
@@ -28,6 +29,9 @@ OPTIONS
 
     -n
 	Dry run - show what is going to be executed.
+
+    -o <file.png>
+	Use <file.png> as the graph filename instead of <log.txt>.png
 
     -S <start>
 	Set xrange min to <start>. Use with -E.
@@ -60,7 +64,8 @@ UNTIL=
 SINCE=
 timefmt='%Y/%m/%d %H:%M'
 cumulative=
-while getopts cd:E:f:hnW:H:S:s:T:t:x: opt
+png_file=
+while getopts cd:E:f:hno:W:H:S:s:T:t:x: opt
 do
 	case "$opt" in
 		c)
@@ -87,6 +92,9 @@ do
 		h)
 			usage
 			exit
+			;;
+		o)
+			png_file=$OPTARG
 			;;
 		S)
 			SINCE=$OPTARG
@@ -138,7 +146,9 @@ case "$first_time" in
 esac
 
 #png_file=$log-$(date -Iseconds).png
-png_file=$log.png
+if [ -z "$png_file" ]; then
+	png_file=$log.png
+fi
 xmin=
 xmax=
 
