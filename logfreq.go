@@ -22,13 +22,32 @@ var delta *time.Duration
 
 var empty string = ""
 
+var optGroup string
+
+var groupRe *regexp.Regexp
+
 func main() {
 	f := flag.String("f", "", "Time format - %T %C %H %M %S %m %d %y %b."+
 		"\n\tMore precise format can be given via -re and -tf")
 	regex := flag.String("re", "", "Regex to extract date and time")
 	tf = flag.String("tf", "", "Time format")
+	flag.StringVar(&optGroup, "g", "none", "Group by day/month/year (add newline between group)")
 
 	flag.Parse()
+
+	switch optGroup {
+	case "none":
+		optGroup = ""
+	case "day":
+		groupRe = regexp.MustCompile("^([0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9])")
+	case "month":
+		groupRe = regexp.MustCompile("^([0-9][0-9][0-9][0-9]/[0-9][0-9])")
+	case "year":
+		groupRe = regexp.MustCompile("^([0-9][0-9][0-9][0-9])")
+	default:
+		fmt.Fprintf(os.Stderr, "Invalid group: %v\n", optGroup)
+		os.Exit(1)
+	}
 
 	if *f != "" {
 		*regex = "(" + *f + ")"
@@ -120,11 +139,30 @@ func main() {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
+
 	fmt.Println("date time frequency cumulative")
 	cumulative := 0
+	currGroup := ""
+	newGroup := ""
 	for _, k := range keys {
+		if len(optGroup) > 0 {
+			newGroup = getGroup(k)
+			if len(newGroup) > 0 && newGroup != currGroup {
+				currGroup = newGroup
+				fmt.Println()
+				cumulative = 0
+			}
+		}
 		cumulative += freq[k]
 		fmt.Println(k, freq[k], cumulative)
 	}
 	os.Exit(ret)
+}
+
+func getGroup(dateTime string) string {
+	matches := groupRe.FindStringSubmatch(dateTime)
+	if len(matches) > 1 {
+		return matches[1]
+	}
+	return ""
 }
