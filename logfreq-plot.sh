@@ -12,6 +12,9 @@ usage() {
 log.txt is the file produced by logfreq
 
 OPTIONS
+    -b
+	Batch mode - do not open the generated png file.
+
     -c
 	Log the cumulative value
 
@@ -65,9 +68,13 @@ SINCE=
 timefmt='%Y/%m/%d %H:%M'
 cumulative=
 png_file=
-while getopts cd:E:f:hno:W:H:S:s:T:t:x: opt
+batchmode=
+while getopts bcd:E:f:hno:W:H:S:s:T:t:x: opt
 do
 	case "$opt" in
+		b)
+			batchmode=t
+			;;
 		c)
 			cumulative=t
 			;;
@@ -199,6 +206,8 @@ if [ -n "$dryrun" ]; then
   echo "gnuplot -persist -e \"$gnuplot_cmd\""
 else
   gnuplot -persist -e "$gnuplot_cmd" >$png_file
-  echo qiv $png_file &&
-  qiv $png_file
+  if [ -z "$batchmode" ]; then
+    echo qiv $png_file &&
+    qiv $png_file
+  fi
 fi
