@@ -23,6 +23,7 @@ var delta *time.Duration
 var empty string = ""
 
 var optGroup string
+var optBucket string
 
 var groupRe *regexp.Regexp
 
@@ -33,6 +34,7 @@ func main() {
 	regex := flag.String("re", "", "Regex to extract date and time")
 	tf = flag.String("tf", "", "Time format")
 	flag.StringVar(&optGroup, "g", "none", "Group by day/month/year (add newline between group)")
+	flag.StringVar(&optBucket, "bucket", "", "Collect by second/minute/hour/day/month/year (default: if -tf has %T or %S, second, else minute)")
 
 	flag.Parse()
 
@@ -63,9 +65,26 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Time format must not be empty (-tf <format)\n")
 		os.Exit(1)
 	}
-	tfmt := "2006/01/02 15:04"
-	if strings.Index(*tf, "%T") != -1 || strings.Index(*tf, "%S") != -1 {
+
+	var tfmt string
+	switch optBucket {
+	case "":
+		tfmt = "2006/01/02 15:04"
+		if strings.Index(*tf, "%T") != -1 || strings.Index(*tf, "%S") != -1 {
+			tfmt = "2006/01/02 15:04:05"
+		}
+	case "second":
 		tfmt = "2006/01/02 15:04:05"
+	case "minute":
+		tfmt = "2006/01/02 15:04"
+	case "hour":
+		tfmt = "2006/01/02 15"
+	case "day":
+		tfmt = "2006/01/02"
+	case "month":
+		tfmt = "2006/01"
+	case "year":
+		tfmt = "2006"
 	}
 
 	*regex = strings.Replace(*regex, "%Z", `[A-Z][A-Z][A-Z][A-Z]?`, -1)
