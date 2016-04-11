@@ -207,7 +207,7 @@ if [ -n "$dryrun" ]; then
 else
   gnuplot -persist -e "$gnuplot_cmd" >$png_file
   if [ -z "$batchmode" ]; then
-    echo qiv $png_file &&
-    qiv $png_file
+    echo qiv "$png_file" &&
+    qiv "$png_file"
   fi
 fi
