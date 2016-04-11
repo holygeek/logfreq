@@ -27,6 +27,7 @@ var optGroup string
 var groupRe *regexp.Regexp
 
 func main() {
+	log.SetFlags(log.Lshortfile)
 	f := flag.String("f", "", "Time format - %T %C %H %M %S %m %d %y %b."+
 		"\n\tMore precise format can be given via -re and -tf")
 	regex := flag.String("re", "", "Regex to extract date and time")
