@@ -174,7 +174,12 @@ elif [ -n "$since" ]; then
 		xmax=\"$(date --utc -d "$since + $duration" +"$timefmt")\"
 	fi
 fi
-title="$args"
+
+#title="$args"
+title=$(basename $0)
+for i in "$@"; do
+  title="$title \"$i\""
+done
 
 if [ -n "$xmin" -o -n "$xmax" ]; then
 	xrange='set xrange ['$xmin':'$xmax']'
